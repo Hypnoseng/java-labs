@@ -1,0 +1,20 @@
+# Compiled
+*.class
+out/
+
+# Packages
+*.jar
+*.war
+
+# Logs
+*.log
+hs_err_pid*
+
+# Editors
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
