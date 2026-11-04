@@ -1,9 +1,9 @@
-package assignment_01_oop.phase2.student_management;
+package assignment_01_basic_oop.student_management;
 
 import java.util.List;
 
-import assignment_01_oop.phase2.student_management.src.model.Student;
-import assignment_01_oop.phase2.student_management.src.service.StudentService;
+import assignment_01_basic_oop.student_management.src.model.Student;
+import assignment_01_basic_oop.student_management.src.service.StudentService;
 
 public class Main {
     private static final StudentService studentService = new StudentService();
@@ -21,8 +21,8 @@ public class Main {
                 case "1" -> createStudent();
                 case "2" -> readAllStudents();
                 case "3" -> searchStudent();
-                // case "4" -> updateStudent();
-                // case "5" -> deleteStudent();
+                case "4" -> updateStudent();
+                case "5" -> deleteStudent();
                 case "6" -> {
                     IO.println("Exiting Student Management System...");
                     return;
@@ -74,7 +74,7 @@ public class Main {
 
         if (student == null) {
             IO.println("Student not found.");
-        }else{
+        } else {
             student.showInformation();
         }
     }
@@ -96,6 +96,63 @@ public class Main {
         IO.println("Total Students : " + studentService.getStudentCount());
     }
 
+    private static void updateStudent() {
+        IO.println("\n--- Update Student ---");
+
+        String studentId = IO.readln("Enter Student ID: ");
+
+        Student existingStudent = studentService.findStudentById(studentId);
+
+        if (existingStudent == null) {
+            IO.println("Student not found");
+            return;
+        }
+
+        IO.println("Enter new information:");
+
+        String name = IO.readln("Name: ");
+        String major = IO.readln("Major: ");
+        int age = readInt("Age: ");
+        double gpa = readDouble("GPA: ");
+
+        boolean updated = studentService.updateStudent(
+                studentId, name, major, age, gpa);
+
+        if (updated) {
+            IO.println("Student updated successfully.");
+        } else {
+            IO.println("Unable to update student.");
+        }
+    }
+
+    private static void deleteStudent() {
+        IO.println("\n--- Delete Student ---");
+
+        String studentId = IO.readln("Enter Student ID: ");
+
+        Student student = studentService.findStudentById(studentId);
+
+        if (student == null) {
+            IO.println("Student not found.");
+            return;
+        }
+
+        IO.println("Student to delete:");
+        student.showInformation();
+
+        String confirm = IO.readln("Confirm delete? (Y/N): ");
+
+        if (confirm.equalsIgnoreCase("Y")) {
+            if (studentService.deleteStudent(studentId)) {
+                IO.println("Student deleted successfully.");
+            } else {
+                IO.println("Unable to delete student.");
+            }
+        } else {
+            IO.println("Delete cancelled.");
+        }
+    }
+
     private static String readString(String message) {
         return IO.readln(message).trim();
     }
@@ -105,7 +162,7 @@ public class Main {
             try {
                 return Integer.parseInt(readString(message));
             } catch (NumberFormatException e) {
-                IO.println("Please enter a valid interger.");
+                IO.println("Please enter a valid integer.");
             }
         }
     }

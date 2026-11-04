@@ -1,0 +1,13 @@
+# Build output
+out/
+*.class
+
+# Editors / OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local-only practice (not tracked)
+phase1/

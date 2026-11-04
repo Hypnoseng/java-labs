@@ -1,4 +1,4 @@
-package assignment_01_oop.phase2.student_management.src.model;
+package assignment_01_basic_oop.student_management.src.model;
 
 public class Student {
     private String studentId;
