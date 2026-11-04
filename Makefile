@@ -1,8 +1,9 @@
 JAVAC = javac
 JAVA  = java
 OUT   = out
-PKG  ?= OOP/lesson3/computer_room
-MAIN ?= $(subst /,.,$(PKG)).Main
+JDBC ?= /usr/share/java/mysql-connector-j-26.10.0.jar
+PKG  ?= java_database/basic_connect
+MAIN ?= $(subst /,.,$(PKG)).ResumeSafe
 SRC   = $(shell find $(PKG) -name "*.java")
 
 .PHONY: build run clean
@@ -12,7 +13,7 @@ build:
 	$(JAVAC) -d $(OUT) $(SRC)
 
 run: build
-	$(JAVA) -cp $(OUT) $(MAIN)
+	$(JAVA) -cp $(OUT):$(JDBC) $(MAIN)
 
 clean:
 	rm -rf $(OUT)
