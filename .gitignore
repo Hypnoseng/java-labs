@@ -22,3 +22,7 @@ Thumbs.db
 # Local dependencies / secrets
 lib/
 .env
+
+# Local-only practice (not tracked)
+Java_GUI/
+OOP/
