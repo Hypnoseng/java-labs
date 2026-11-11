@@ -5,37 +5,43 @@ import dao.StudentDao;
 import model.Student;
 
 import java.awt.*;
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import java.nio.file.Files;
 
 public class StudentForm extends JFrame {
 
     // รูปภาพ
-    private JButton btnChooseImage;     // ปุ่มเลือกไฟล์รูป
-    private Path selectedImagePath;     // path ของรูปที่เลือกไว้
-    private JLabel imageLabel;          // ป้ายแสดงรูปนักศึกษา (หรือข้อความ No Photo)
+    private JButton btnChooseImage; // ปุ่มเลือกไฟล์รูป
+    private Path selectedImagePath; // path ของรูปที่เลือกไว้
+    private JLabel imageLabel; // ป้ายแสดงรูปนักศึกษา (หรือข้อความ No Photo)
+    private JButton btnChangePhoto; // ปุ่มเปลี่ยนรูป
+    private JButton btnDeletePhoto; // ปุ่มลบรูป (ลบเฉพาะรูปภาพของนักศึกษา โดยไม่ลบข้อมูลนักศึกษา)
 
     // JTable
-    private JTable tblStudents;             // ตารางแสดงรายชื่อนักศึกษา
-    private DefaultTableModel tableModel;   // ข้อมูลของตาราง
+    private JTable tblStudents; // ตารางแสดงรายชื่อนักศึกษา
+    private DefaultTableModel tableModel; // ข้อมูลของตาราง
 
     // ช่องกรอกข้อมูล
-    private JTextField textCode;        // รหัสนักศึกษา
-    private JTextField txtFirstName;    // ชื่อ
-    private JTextField txtLastName;     // นามสกุล
-    private JTextField txtEmail;        // อีเมล
-    private JTextField txtAge;          // อายุ
+    private JTextField textCode; // รหัสนักศึกษา
+    private JTextField txtFirstName; // ชื่อ
+    private JTextField txtLastName; // นามสกุล
+    private JTextField txtEmail; // อีเมล
+    private JTextField txtAge; // อายุ
 
     // ปุ่มสั่งงาน
-    private JButton btnAdd;             // เพิ่มนักศึกษา
-    private JButton btnUpdate;          // แก้ไขข้อมูล
-    private JButton btnDelete;          // ลบนักศึกษาที่เลือกในตาราง
-    private JButton btnSearch;          // ค้นหาตามรหัสนักศึกษา
-    private JButton btnRefresh;         // โหลดตารางใหม่และล้างฟอร์ม
+    private JButton btnAdd; // เพิ่มนักศึกษา
+    private JButton btnUpdate; // แก้ไขข้อมูล
+    private JButton btnDelete; // ลบนักศึกษาที่เลือกในตาราง
+    private JButton btnSearch; // ค้นหาตามรหัสนักศึกษา
+    private JButton btnRefresh; // โหลดตารางใหม่และล้างฟอร์ม
 
     // แถบแสดงสถานะด้านล่างหน้าต่าง
     private JLabel lblStatus;
@@ -128,12 +134,16 @@ public class StudentForm extends JFrame {
         btnSearch = new JButton("Search");
         btnRefresh = new JButton("Refresh");
         btnChooseImage = new JButton("Choose Image");
+        btnChangePhoto = new JButton("Change Photo");
+        btnDeletePhoto = new JButton("Delete Photo");
 
         btnSearch.addActionListener(e -> searchStudent());
         btnAdd.addActionListener(e -> addStudent());
         btnUpdate.addActionListener(e -> updateStudent());
         btnDelete.addActionListener(e -> deleteSelectedStudent());
         btnChooseImage.addActionListener(e -> chooseImage());
+        btnChangePhoto.addActionListener(e -> changePhoto());
+        btnDeletePhoto.addActionListener(e -> deletePhoto());
 
         btnRefresh.addActionListener(e -> {
             loadStudents();
@@ -148,6 +158,8 @@ public class StudentForm extends JFrame {
         buttonPanel.add(btnSearch);
         buttonPanel.add(btnRefresh);
         buttonPanel.add(btnChooseImage);
+        buttonPanel.add(btnChangePhoto);
+        buttonPanel.add(btnDeletePhoto);
 
         return buttonPanel;
     }
@@ -399,6 +411,131 @@ public class StudentForm extends JFrame {
         }
     }
 
+    private void chooseImage() {
+
+        JFileChooser fileChooser = new JFileChooser();
+
+        File imageDirectory = new File("images");
+
+        if (imageDirectory.exists() && imageDirectory.isDirectory()) {
+            fileChooser.setCurrentDirectory(imageDirectory);
+        }
+
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Image Files (JPG, PNG, GIF)",
+                "jpg", "jpeg", "png", "gif");
+
+        fileChooser.setFileFilter(filter);
+
+        // เปิดหน้าต่างเลือกไฟล์
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+
+            // รับ Path ของไฟล์ที่เลือก
+            Path path = fileChooser.getSelectedFile().toPath();
+
+            // แสดง Preview
+            ImageIcon icon = new ImageIcon(path.toString());
+
+            if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
+                JOptionPane.showMessageDialog(this, "Invalid image file");
+                return;
+            }
+
+            selectedImagePath = path;
+
+            Image image = icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+
+            imageLabel.setIcon(new ImageIcon(image));
+            imageLabel.setText("");
+        }
+    }
+
+    private void changePhoto() {
+
+        String code = textCode.getText().trim();
+
+        if (code.isEmpty()) {
+            lblStatus.setText("Please enter Student code");
+            return;
+        }
+
+        if (selectedImagePath == null) {
+            lblStatus.setText("Please choose an image");
+            return;
+        }
+
+        try {
+
+            long fileSize = Files.size(selectedImagePath);
+            long maxSize = 2 * 1024 * 1024; // 2 MB
+
+            if (fileSize > maxSize) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "รูปใหญ่เกิน 2 MB");
+                return;
+            }
+
+            boolean saved = PhotoDao.savePhoto(code, selectedImagePath);
+
+            if (saved) {
+
+                displayPhoto(code);
+
+                lblStatus.setText("Photo updated: " + code);
+
+                JOptionPane.showMessageDialog(this, "Photo updated successfully");
+
+            } else {
+                lblStatus.setText("Student not found");
+            }
+        } catch (Exception e) {
+            lblStatus.setText("Failed to update photo");
+            e.printStackTrace();
+        }
+    }
+
+    private void deletePhoto() {
+
+        String studentCode = textCode.getText().trim();
+
+        if (studentCode.isEmpty()) {
+            lblStatus.setText("Please select a student");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Delete photo for " + studentCode + "?",
+                "Confirm Delete Photo",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+
+            boolean deleted = PhotoDao.deletePhoto(studentCode);
+
+            if (deleted) {
+                imageLabel.setIcon(null);
+                imageLabel.setText("No Photo");
+                selectedImagePath = null;
+
+                lblStatus.setText("Photo deleted: " + studentCode);
+            } else {
+                lblStatus.setText("No photo found");
+            }
+        } catch (SQLException e) {
+            lblStatus.setText("Database Error");
+            e.printStackTrace();
+        }
+
+    }
+
     private void clearForm() {
         textCode.setText("");
         txtFirstName.setText("");
@@ -430,7 +567,6 @@ public class StudentForm extends JFrame {
         }
     }
 
-    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             StudentForm form = new StudentForm();

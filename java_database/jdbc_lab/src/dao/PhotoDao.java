@@ -4,12 +4,13 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
 public class PhotoDao {
 
-    public static void savePhoto(String student_code, Path imPath) throws Exception {
+    public static boolean savePhoto(String student_code, Path imPath) throws Exception {
 
         try (InputStream inputStream = Files.newInputStream(imPath)) {
 
@@ -26,7 +27,7 @@ public class PhotoDao {
                 ps.setString(2, student_code);
 
                 int rows = ps.executeUpdate();
-                System.out.println("Rows affected: " + rows);
+                return rows > 0;
             }
         }
     }
@@ -53,6 +54,27 @@ public class PhotoDao {
                 return null;
 
             }
+        }
+    }
+
+    public static boolean deletePhoto(String studentCode) throws SQLException {
+
+        String sql = """
+                    DELETE p
+                    FROM student_photos p
+                    JOIN students s ON s.id = p.student_id
+                    WHERE s.student_code = ?
+                """;
+
+        try (
+        Connection c = Db.connect();
+        PreparedStatement ps = c.prepareStatement(sql)
+        ) {
+            ps.setString(1, studentCode);
+
+            int rows = ps.executeUpdate();
+
+            return rows > 0;
         }
     }
 }
