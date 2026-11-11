@@ -1,6 +1,6 @@
 # JDBC Lab
 
-โปรเจกต์ฝึก JDBC ตามแผน JDBC Week 5
+โปรเจกต์ฝึก JDBC
 
 ## About
 **ระบบจัดการข้อมูลนักศึกษา (Student Management)** แอปเดสก์ท็อปด้วย Java Swing ที่เชื่อมต่อ MySQL ผ่าน JDBC
@@ -16,7 +16,7 @@
 - ตรวจข้อมูลก่อนบันทึก (ช่องว่าง อายุ รหัสหรืออีเมลซ้ำ) และแจ้งผลที่แถบสถานะด้านล่าง
 - ใช้ PreparedStatement ทุกคำสั่ง SQL และอ่านค่าเชื่อมต่อจาก environment variable
 
-## Roadmap (JDBC Week 5)
+## Roadmap
 
 **Phase 1: เตรียมฐานข้อมูล**
 - [x] เชื่อม MySQL ด้วย `Db.connect()` และเข้าใจโครงสร้างตาราง `students`
