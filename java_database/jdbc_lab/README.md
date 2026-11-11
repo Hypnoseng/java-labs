@@ -37,11 +37,11 @@
 - [x] แสดงสถานะและ error ที่แถบด้านล่างหน้าต่าง
 
 ## Setup
-สร้าง database และตาราง (ค่า default ของโปรเจกต์ใช้ database ชื่อ `cos2208`):
+สร้าง database และตาราง (ค่า default ของโปรเจกต์ใช้ database ชื่อ `jdbc_lab`):
 
 ```sql
-CREATE DATABASE IF NOT EXISTS cos2208;
-USE cos2208;
+CREATE DATABASE IF NOT EXISTS jdbc_lab;
+USE jdbc_lab;
 
 CREATE TABLE students (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +60,7 @@ CREATE TABLE student_photos (
 );
 ```
 
-ถ้าไม่ตั้ง environment variable โปรแกรมจะใช้ค่า default: `DB_URL` = `jdbc:mysql://localhost:3306/cos2208?...`, `DB_USER` = `root`, `DB_PASS` = ค่าว่าง (ต้องตั้ง `DB_PASS` ถ้า MySQL มีรหัสผ่าน)
+ถ้าไม่ตั้ง environment variable โปรแกรมจะใช้ค่า default: `DB_URL` = `jdbc:mysql://localhost:3306/jdbc_lab?...`, `DB_USER` = `root`, `DB_PASS` = ค่าว่าง (ต้องตั้ง `DB_PASS` ถ้า MySQL มีรหัสผ่าน)
 
 ## Requirements
 - JDK 25+
